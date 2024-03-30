@@ -1,0 +1,74 @@
+version: "3"
+
+services:
+  suricata:
+    build: suricata/
+    container_name: suricata
+    image: suricata:v5
+    network_mode: host
+    environment:
+      CONFIG: '-i enp1s0'
+    cap_add:
+      - NET_ADMIN
+      - SYS_NICE
+    restart: unless-stopped
+    volumes:
+      - data01:/var/log/suricata
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:$ELASTIC_VERSION
+    environment:
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
+      - xpack.security.enabled=$ELASTIC_SECURITY
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:$ELASTIC_VERSION
+    container_name: kibana
+    environment:
+      - SERVER_NAME=magician.local
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=$ELASTIC_PASSWORD
+      #volumes:
+      #- ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - "5601:5601"
+    networks:
+      - elastic
+
+  filebeat:
+    #build: filebeat/
+    image: docker.elastic.co/beats/filebeat:$ELASTIC_VERSION
+    container_name: filebeat
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=$ELASTIC_PASSWORD
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    networks:
+      - elastic
+
+
+networks:
+  elastic:
+    driver: bridge
+
+volumes:
+  data01:
+    driver: local
