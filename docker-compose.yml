@@ -30,13 +30,16 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - data01:/usr/share/elasticsearch/data
+      #- data01:/usr/share/elasticsearch/data
+      - data01:/var/lib/elasticsearch/data
     ports:
       - 9200:9200
     networks:
       - elastic
 
   kibana:
+    depends_on:
+      - elasticsearch
     image: docker.elastic.co/kibana/kibana:$ELASTIC_VERSION
     container_name: kibana
     environment:
@@ -53,6 +56,9 @@ services:
 
   filebeat:
     #build: filebeat/
+    depends_on:
+      - elasticsearch
+      - kibana
     image: docker.elastic.co/beats/filebeat:$ELASTIC_VERSION
     container_name: filebeat
     environment:
