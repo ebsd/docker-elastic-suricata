@@ -136,8 +136,8 @@ services:
       retries: 120
     ports:
       - "5601:5601"
-    networks:
-      - elastic
+        #    networks:
+        #      - elastic
 
   filebeat:
     #build: filebeat/
@@ -152,13 +152,13 @@ services:
       - ELASTICSEARCH_PASSWORD=$ELASTIC_PASSWORD
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-    networks:
-      - elastic
+        #    networks:
+        #      - elastic
 
 
-networks:
-  elastic:
-    driver: bridge
+        #networks:
+        #  elastic:
+        #    driver: bridge
 
 volumes:
   certs:
