@@ -136,14 +136,15 @@ services:
       retries: 120
     ports:
       - "5601:5601"
-        #    networks:
-        #      - elastic
 
   filebeat:
     #build: filebeat/
+    user: root
     depends_on:
-      - es01
-      - kibana
+      es01:
+        condition: service_healthy
+      kibana: 
+        condition: service_healthy
     image: docker.elastic.co/beats/filebeat:$STACK_VERSION
     container_name: filebeat
     environment:
@@ -152,13 +153,10 @@ services:
       - ELASTICSEARCH_PASSWORD=$ELASTIC_PASSWORD
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-        #    networks:
-        #      - elastic
-
-
-        #networks:
-        #  elastic:
-        #    driver: bridge
+      - ./filebeat/modules.d/suricata.yml:/usr/share/modules.d/suricata.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+    # disable strict permission checks
+    command: ["--strict.perms=false"]
 
 volumes:
   certs:
