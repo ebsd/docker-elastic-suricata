@@ -19,4 +19,9 @@ Le fichier `filebeat/filebat.yml` doit être possédé par root.
 Les logs du conteneur Suricata sont partagés avec le conteneur Filebeat via un volume :
 `suricatadata:/var/log/suricata`.
 
+## suricata
 
+Tester l'IDS : 
+```
+$ curl http://testmynids.org/uid/index.html
+```
