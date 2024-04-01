@@ -148,15 +148,16 @@ services:
     image: docker.elastic.co/beats/filebeat:$STACK_VERSION
     container_name: filebeat
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=https://es01:9200
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=$ELASTIC_PASSWORD
     volumes:
       - filebeatdata:/usr/share/filebeat/data
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./filebeat/modules.d/suricata.yml:/usr/share/modules.d/suricata.yml
+      - ./filebeat/modules.d/suricata.yml:/usr/share/filebeat/modules.d/suricata.yml
       - /var/run/docker.sock:/var/run/docker.sock
       - suricatadata:/var/log/suricata
+      - certs:/usr/share/filebeat/config/certs
     # disable strict permission checks
     command: ["--strict.perms=false"]
 
